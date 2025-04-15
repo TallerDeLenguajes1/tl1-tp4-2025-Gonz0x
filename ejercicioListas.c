@@ -34,13 +34,17 @@ void mostrarLista(){
     Nodo *actual;
     while (actual != NULL)
     {
-        printf("\nTareaID: %d, descripcion: %s, duracion %d",)
+        printf("\nTareaID: %d, descripcion: %s, duracion %d", actual->T.Duracion, actual->T.Descripcion, actual->T.Duracion);
+        actual = actual->Siguiente;
     }
-    
 }
+
 int main(){
     start = CrearLista();
     int op = 0;
+    //*tareasPendientes;
+    //*tareasRealizadas;
+    
     do
     {
 
@@ -53,16 +57,51 @@ int main(){
         tarea.Descripcion = (char *)malloc(strlen(tarea.Descripcion) * sizeof(char));
         printf("\nIngrese la descripcion de tarea: ");
         gets(tarea.Descripcion);
+        do
+        {    
+            printf("\nIngrese su duracion: ");
+            scanf("%d", &tarea.Duracion);
+
+        } while (tarea.Duracion >= 10 || tarea.Duracion <= 100);
+
         
+
+
+        int buscar = 0;
+
+        if (buscar == 0)
+        {
+            int id;
+            printf("\nIngrese id:");
+            scanf("%d", &id);    
+            char *tareaBuscada = BuscaNombrePorId(nombres, id);
+            if (tareaBuscada != NULL)
+            {
+                printf("\nNombre buscado: %s", tareaBuscada);      
+            }else{
+                printf("\nEl id no pertenece al arreglo.");
+            }
+        }else if(buscar == 1)
+        {
+            char subcadena[15];
+            printf("\nIngrese una palabra para buscar nombre:");
+            fflush(stdin);
+            gets(subcadena);
+            fflush(stdin);
+            char *tareaBuscada2 = BuscaNombrePorPalabra(nombres, subcadena);
+            if (tareaBuscada2)
+            {
+                printf("La subcadena se encuentra en: %s\n", tareaBuscada2);
+            }else{
+                printf("La subcadena no encontrada.\n");
+            }
+        }
+
+
     } while (op != 0); 
    
    
-    do
-    {    
-        printf("\nIngrese su duracion: ");
-        scanf("%d", &tarea.Duracion);
 
-    } while (tarea.Duracion >= 10 || tarea.Duracion <= 100);
 
 
     
