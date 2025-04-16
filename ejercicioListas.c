@@ -7,12 +7,11 @@ int TareaID;//Numérico autoincremental comenzando en 1000
 char *Descripcion; //
 int Duracion; // entre 10 – 100
 }Tarea;
-typedef struct{
+typedef struct Nodo{
 Tarea T;
 Nodo *Siguiente;
 }Nodo;
 
-Nodo *start;
 Nodo * CrearLista(){
     return NULL;
 }
@@ -39,8 +38,35 @@ void mostrarLista(){
     }
 }
 
+int moverLista(Nodo **pendientes, Nodo **realizadas, int id){
+    Nodo *actual = *pendientes;  
+    Nodo *anterior = NULL; 
+    while (actual != NULL)
+    {
+        if (actual->T.TareaID == id) //si encontramos a la tarea
+        {
+            if (anterior == NULL) //es para el caso que la tarea sea la primera de la lista
+            {
+                *pendientes = actual->Siguiente; //me desplazo hacia la siguiente tarea para borrar actual
+            }else
+            {
+                anterior->Siguiente = actual->Siguiente; //para el caso tarea no es la primera de la lista, me la salteo mediante punteros
+            }
+
+            InsertarNodo(realizadas, actual); //cambio de lista las tareas
+            
+        }
+        anterior = actual; //me desplazo por la lista
+        actual = actual->Siguiente;
+    }
+    
+
+}
+
 int main(){
-    start = CrearLista();
+    Nodo *pendientes = CrearLista();
+    Nodo *realizadas = CrearLista();
+    int i = 1000;
     int op = 0;
     //*tareasPendientes;
     //*tareasRealizadas;
@@ -51,51 +77,66 @@ int main(){
         printf("\nDesea ingresar nueva tarea o carga?");
         printf("\n1.SI - 0.No: ");
         scanf("%d", &op); 
-        Tarea tarea;
-        int i = 1000;
-        tarea.TareaID = i++;
-        tarea.Descripcion = (char *)malloc(strlen(tarea.Descripcion) * sizeof(char));
-        printf("\nIngrese la descripcion de tarea: ");
-        gets(tarea.Descripcion);
-        do
-        {    
-            printf("\nIngrese su duracion: ");
-            scanf("%d", &tarea.Duracion);
+        if (op == 1)
+        {
+            Tarea tarea;
+            tarea.TareaID = i++;
+            tarea.Descripcion = (char *)malloc(strlen(tarea.Descripcion) * sizeof(char));
+            printf("\nIngrese la descripcion de tarea: ");
+            gets(tarea.Descripcion);
+            do
+            {    
+                printf("\nIngrese su duracion: ");
+                scanf("%d", &tarea.Duracion);
 
-        } while (tarea.Duracion >= 10 || tarea.Duracion <= 100);
+            } while (tarea.Duracion <= 10 || tarea.Duracion >= 100);
 
+            InsertarNodo(&pendientes, crearNodo(tarea));
+            printf("\nSe agrego la tarea!");
+
+        }
+
+        if (pendientes != NULL)
+        {
+            printf("\nTareas pendientes: ");
+            mostrarLista(pendientes);
+        }else
+        {
+            printf("\nNo hay tareas pendientes.");
+        }
+        
+
+        if (realizadas != NULL)
+        {
+            printf("\nTareas realizadas: ");
+            mostrarLista(realizadas);
+        }else
+        {
+            printf("\nNo hay tareas realizadas.");
+        }
+
+
+        char x;
+        printf("\nSi desea cambiar una tarea pendiente a realizada, presione x");
+        scanf("%c", &x);
+        if (x)
+        {
+            int id;
+            printf("\nIngrese ID de la tarea que desea eliminar: ");
+            scanf("%d", &id);
+            moverLista(&pendientes, &realizadas, id);
+            printf("\nTarea movida exitosamente!");
+            
+        }
+        
+        
+        
+        
+
+        
         
 
 
-        int buscar = 0;
-
-        if (buscar == 0)
-        {
-            int id;
-            printf("\nIngrese id:");
-            scanf("%d", &id);    
-            char *tareaBuscada = BuscaNombrePorId(nombres, id);
-            if (tareaBuscada != NULL)
-            {
-                printf("\nNombre buscado: %s", tareaBuscada);      
-            }else{
-                printf("\nEl id no pertenece al arreglo.");
-            }
-        }else if(buscar == 1)
-        {
-            char subcadena[15];
-            printf("\nIngrese una palabra para buscar nombre:");
-            fflush(stdin);
-            gets(subcadena);
-            fflush(stdin);
-            char *tareaBuscada2 = BuscaNombrePorPalabra(nombres, subcadena);
-            if (tareaBuscada2)
-            {
-                printf("La subcadena se encuentra en: %s\n", tareaBuscada2);
-            }else{
-                printf("La subcadena no encontrada.\n");
-            }
-        }
 
 
     } while (op != 0); 
