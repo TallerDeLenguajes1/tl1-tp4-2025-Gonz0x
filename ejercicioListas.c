@@ -217,7 +217,7 @@ int main(){
             buscaTarea(&pendientes, &realizadas);
         }
 
-    } while (op != 0); 
+    } while (scanf("%d", &op) != 0); 
 
     return 0;
 }
