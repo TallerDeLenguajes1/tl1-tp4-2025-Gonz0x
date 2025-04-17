@@ -7,9 +7,10 @@ int TareaID;//Numérico autoincremental comenzando en 1000
 char *Descripcion; //
 int Duracion; // entre 10 – 100
 }Tarea;
+
 typedef struct Nodo{
 Tarea T;
-Nodo *Siguiente;
+struct Nodo *Siguiente;
 }Nodo;
 
 Nodo * CrearLista(){
@@ -18,27 +19,29 @@ Nodo * CrearLista(){
 
 Nodo *crearNodo(Tarea tarea)
 {
-    Nodo *Nnodo = (Nodo *)malloc(sizeof(Nodo));
+    Nodo *Nnodo = (Nodo *)malloc(sizeof(Nodo)); //asignacion dinamica de memoria nuevonodo
     Nnodo->T = tarea;
     Nnodo->Siguiente = NULL;
     return Nnodo;
 }
 
-void InsertarNodo(Nodo **start, Nodo *Nodo){
-    Nodo-> Siguiente = *start;
-    *start = Nodo;
+void InsertarNodo(Nodo **start, Nodo *NuevoNodo){
+    NuevoNodo-> Siguiente = *start;
+    *start = NuevoNodo;
 }
 
-void mostrarLista(){
-    Nodo *actual;
+void mostrarLista(Nodo *lista){
+    Nodo *actual = lista;
     while (actual != NULL)
     {
-        printf("\nTareaID: %d, descripcion: %s, duracion %d", actual->T.Duracion, actual->T.Descripcion, actual->T.Duracion);
+        printf("\nTareaID: %d, descripcion: %s, duracion %d", actual->T.TareaID, actual->T.Descripcion, actual->T.Duracion);
         actual = actual->Siguiente;
     }
 }
 
-int moverLista(Nodo **pendientes, Nodo **realizadas, int id){
+
+
+void moverLista(Nodo **pendientes, Nodo **realizadas, int id){
     Nodo *actual = *pendientes;  
     Nodo *anterior = NULL; 
     while (actual != NULL)
@@ -63,14 +66,86 @@ int moverLista(Nodo **pendientes, Nodo **realizadas, int id){
 
 }
 
+void buscaTarea(Nodo **pendientes, Nodo **realizadas){
+    Nodo *actual, *actual2;
+    actual = *pendientes;
+    actual2 = *realizadas;
+    int seleccion = 0;        
+    int encontrada = 0;
+    printf("\nSi desea buscar la tarea por ID presione 0, si desea buscarla por un nombre presione 1: ");
+    scanf("%d", &seleccion);
+    if (seleccion == 0)
+    {
+        int id = 0;
+        printf("\nIngrese ID de tarea: ");
+        scanf("%d", &id);
+        while (actual != NULL)
+        {
+            if (actual->T.TareaID == id) //si encontramos a la tarea
+            {
+                printf("\nTareaID: %d, descripcion: %s, duracion %d", actual->T.TareaID, actual->T.Descripcion, actual->T.Duracion);
+                encontrada = 1;
+            }
+            actual = actual->Siguiente;
+        }
+
+        while (actual2 != NULL)
+        {
+            if (actual2->T.TareaID == id) //si encontramos a la tarea
+            {
+                printf("\nTareaID: %d, descripcion: %s, duracion %d", actual2->T.TareaID, actual2->T.Descripcion, actual2->T.Duracion);
+                encontrada = 1;
+            }
+            actual2 = actual2->Siguiente;
+        }
+
+        if (!encontrada)
+        {
+            printf("\nNo se encontro la tarea.");
+        }
+        
+    }else
+    {
+        char subcadena[15]; 
+        printf("\nIngrese el nombre de la tarea: ");
+        fflush(stdin);
+        gets(subcadena);
+        fflush(stdin);
+
+        while (actual != NULL)
+        {
+            if (strstr(actual->T.Descripcion, subcadena))
+            {
+                printf("\nTareaID: %d, descripcion: %s, duracion %d", actual->T.TareaID, actual->T.Descripcion, actual->T.Duracion);
+                encontrada = 1;
+            }
+            actual = actual->Siguiente;
+            
+        }
+        while (actual2 != NULL)
+        {
+            if (strstr(actual2->T.Descripcion, subcadena))
+            {
+                printf("\nTareaID: %d, descripcion: %s, duracion %d", actual2->T.TareaID, actual2->T.Descripcion, actual2->T.Duracion);
+                encontrada = 1;
+            }
+            actual2 = actual2->Siguiente;
+            
+        }
+        if (!encontrada)
+        {
+            printf("\nNo se encontro la tarea.");
+        }
+        
+    }
+}
+
 int main(){
     Nodo *pendientes = CrearLista();
     Nodo *realizadas = CrearLista();
     int i = 1000;
     int op = 0;
-    //*tareasPendientes;
-    //*tareasRealizadas;
-    
+    Tarea tarea;
     do
     {
 
@@ -79,21 +154,26 @@ int main(){
         scanf("%d", &op); 
         if (op == 1)
         {
-            Tarea tarea;
-            tarea.TareaID = i++;
-            tarea.Descripcion = (char *)malloc(strlen(tarea.Descripcion) * sizeof(char));
+            tarea.TareaID = i++;          
+            char descripcionTarea[100]; // arreglo aux 
             printf("\nIngrese la descripcion de tarea: ");
-            gets(tarea.Descripcion);
+            fflush(stdin);
+            gets(descripcionTarea);
+            tarea.Descripcion = (char *)malloc(strlen(descripcionTarea) * sizeof(char));
+            strcpy(tarea.Descripcion, descripcionTarea); //copio lo del arreglo aux a tarea.descripcion
+  
             do
             {    
-                printf("\nIngrese su duracion: ");
+                printf("\nIngrese su duracion > 10 y < 100: ");
                 scanf("%d", &tarea.Duracion);
-
             } while (tarea.Duracion <= 10 || tarea.Duracion >= 100);
 
             InsertarNodo(&pendientes, crearNodo(tarea));
             printf("\nSe agrego la tarea!");
 
+        }else{
+            op = 0;
+            printf("\nFIN");
         }
 
         if (pendientes != NULL)
@@ -116,10 +196,10 @@ int main(){
         }
 
 
-        char x;
-        printf("\nSi desea cambiar una tarea pendiente a realizada, presione x");
-        scanf("%c", &x);
-        if (x)
+        int cambiar = 0;
+        printf("\nSi desea cambiar una tarea pendiente a realizada, presione 1, sino 0: ");
+        scanf(" %d", &cambiar);
+        if (cambiar == 1)
         {
             int id;
             printf("\nIngrese ID de la tarea que desea eliminar: ");
@@ -129,25 +209,15 @@ int main(){
             
         }
         
-        
-        
-        
-
-        
-        
-
-
-
+        int buscar = 0;
+        printf("\nSi desea buscar una tarea pendiente o realizada, presione 1, sino 0: ");
+        scanf(" %d", &buscar);
+        if (buscar == 1)
+        {
+            buscaTarea(&pendientes, &realizadas);
+        }
 
     } while (op != 0); 
-   
-   
-
-
-
-    
-
-
 
     return 0;
 }
